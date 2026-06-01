@@ -292,21 +292,26 @@ function tumunuKapat(){
   updateStats();
 }
 
-// --- SKULPT PYTHON RUNNER ---
-// --- SKULPT RUNNER ---
-let inputResolve = null;
+// --- RUNNER ---
+var _currentIdx = null;
+var _inputResolve = null;
 
 function resolveInput() {
-  const val = document.getElementById('inputField').value;
+  var val = document.getElementById('inputField').value;
   document.getElementById('inputModal').classList.remove('show');
   document.getElementById('inputField').value = '';
-  if (inputResolve) { inputResolve(val); inputResolve = null; }
+  if (_inputResolve) { _inputResolve(val); _inputResolve = null; }
+}
+
+function _getOut() {
+  return document.getElementById('output' + _currentIdx);
 }
 
 function runPython(idx) {
-  const code = document.getElementById('editor' + idx).value.trim();
-  const outEl = document.getElementById('output' + idx);
-  const btn = document.querySelector('#card' + idx + ' .run-btn');
+  _currentIdx = idx;
+  var code = document.getElementById('editor' + idx).value.trim();
+  var outEl = document.getElementById('output' + idx);
+  var btn = document.getElementById('runbtn' + idx);
 
   if (!code) {
     outEl.textContent = '# kod yaz ve çalıştır';
@@ -319,51 +324,56 @@ function runPython(idx) {
   btn.disabled = true;
   btn.textContent = '⏳ Çalışıyor...';
 
-  function builtinRead(x) {
-    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-      throw "Dosya bulunamadı: '" + x + "'";
-    return Sk.builtinFiles["files"][x];
-  }
-
   Sk.configure({
-    output: function(text) { outEl.textContent += text; },
-    read: builtinRead,
+    output: function(text) {
+      var el = _getOut();
+      el.textContent = el.textContent + text;
+    },
+    read: function(x) {
+      if (Sk.builtinFiles === undefined || Sk.builtinFiles['files'][x] === undefined)
+        throw "Dosya bulunamadı: '" + x + "'";
+      return Sk.builtinFiles['files'][x];
+    },
     inputfun: function(prompt) {
       return new Promise(function(resolve) {
-        inputResolve = resolve;
+        _inputResolve = resolve;
         document.getElementById('inputPromptText').textContent = prompt || 'Değer girin:';
         document.getElementById('inputModal').classList.add('show');
-        setTimeout(function() { document.getElementById('inputField').focus(); }, 150);
+        setTimeout(function() {
+          try { document.getElementById('inputField').focus(); } catch(e){}
+        }, 200);
       });
     },
     inputfunTakesPrompt: true,
     __future__: Sk.python3
   });
 
-  var promise = Sk.misceval.asyncToPromise(function() {
+  Sk.misceval.asyncToPromise(function() {
     return Sk.importMainWithBody('<stdin>', false, code, true);
-  });
-
-  promise.then(function() {
-    btn.disabled = false;
-    btn.textContent = '▶ Çalıştır';
-    if (!outEl.textContent.trim()) {
-      outEl.textContent = '(çıktı yok)';
-      outEl.className = 'output-area visible empty';
+  }).then(function() {
+    var el = _getOut();
+    var b = document.getElementById('runbtn' + idx);
+    b.disabled = false;
+    b.textContent = '▶ Çalıştır';
+    if (!el.textContent.trim()) {
+      el.textContent = '(çıktı yok)';
+      el.className = 'output-area visible empty';
     }
   }, function(err) {
-    btn.disabled = false;
-    btn.textContent = '▶ Çalıştır';
+    var el = _getOut();
+    var b = document.getElementById('runbtn' + idx);
+    b.disabled = false;
+    b.textContent = '▶ Çalıştır';
     var msg = err.toString();
     var lines = msg.split('\n').filter(function(l) { return l.trim(); });
-    outEl.textContent = '⚠ ' + (lines[lines.length - 1] || msg);
-    outEl.className = 'output-area visible error';
+    el.textContent = '⚠ ' + (lines[lines.length - 1] || msg);
+    el.className = 'output-area visible error';
   });
 }
 
 function clearEditor(idx) {
   document.getElementById('editor' + idx).value = '';
-  const outEl = document.getElementById('output' + idx);
+  var outEl = document.getElementById('output' + idx);
   outEl.textContent = '';
   outEl.className = 'output-area';
 }
@@ -395,7 +405,7 @@ sorular.forEach((q,i)=>{
       <div class="editor-label">✏ Kodunu yaz ve dene <span>— tarayıcıda çalışır, kurulum gerekmez</span></div>
       <textarea class="code-editor" id="editor${i}" placeholder="# buraya kodunu yaz..." spellcheck="false" onkeydown="if(event.key==='Tab'){event.preventDefault();var s=this.selectionStart;this.value=this.value.substring(0,s)+'    '+this.value.substring(this.selectionEnd);this.selectionStart=this.selectionEnd=s+4;}"></textarea>
       <div class="editor-toolbar">
-        <button class="run-btn" onclick="runPython(${i})">▶ Çalıştır</button>
+        <button class="run-btn" id="runbtn${i}" onclick="runPython(${i})">▶ Çalıştır</button>
         <button class="clear-btn" onclick="clearEditor(${i})">Temizle</button>
         <span class="input-notice">input() desteklenir</span>
       </div>
