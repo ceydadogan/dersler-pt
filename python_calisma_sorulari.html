@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Python Programlama Temelleri — Çalışma Soruları</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt-stdlib.js"></script>
 <style>
   :root {
     --bg: #f7f6f2;
@@ -14,242 +16,116 @@
     --text: #1a1916;
     --text-muted: #6b6860;
     --text-hint: #9e9b93;
-    --accent: #2563eb;
     --green: #16a34a;
-    --green-bg: #f0fdf4;
-    --green-border: #bbf7d0;
     --code-bg: #1e1e2e;
     --code-text: #cdd6f4;
-    --t-degisken-bg: #eff6ff; --t-degisken: #1d4ed8;
-    --t-kosul-bg: #fff7ed; --t-kosul: #c2410c;
-    --t-dongu-bg: #f0fdf4; --t-dongu: #15803d;
-    --t-liste-bg: #faf5ff; --t-liste: #7c3aed;
-    --t-fonksiyon-bg: #fff1f2; --t-fonksiyon: #be123c;
-    --t-girdi-bg: #fdf4ff; --t-girdi: #a21caf;
-    --t-matematik-bg: #ecfdf5; --t-matematik: #065f46;
+    --t-degisken-bg:#eff6ff;--t-degisken:#1d4ed8;
+    --t-kosul-bg:#fff7ed;--t-kosul:#c2410c;
+    --t-dongu-bg:#f0fdf4;--t-dongu:#15803d;
+    --t-liste-bg:#faf5ff;--t-liste:#7c3aed;
+    --t-fonksiyon-bg:#fff1f2;--t-fonksiyon:#be123c;
+    --t-girdi-bg:#fdf4ff;--t-girdi:#a21caf;
+    --t-matematik-bg:#ecfdf5;--t-matematik:#065f46;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 0;
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:1.5rem 2rem 1.25rem;position:sticky;top:0;z-index:100;}
+  .header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+  .header-title h1{font-size:1.2rem;font-weight:600;letter-spacing:-0.02em;}
+  .header-title p{font-size:0.75rem;color:var(--text-muted);margin-top:3px;font-family:'IBM Plex Mono',monospace;}
+  .stats-row{display:flex;gap:1.25rem;align-items:center;flex-wrap:wrap;}
+  .stat{text-align:center;}
+  .stat-num{font-size:1.3rem;font-weight:600;font-family:'IBM Plex Mono',monospace;}
+  .stat-lbl{font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;}
+  .progress-wrap{flex:1;min-width:100px;}
+  .progress-track{height:5px;background:var(--border);border-radius:10px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--green);border-radius:10px;width:0%;transition:width 0.4s;}
+  .progress-lbl{font-size:0.68rem;color:var(--text-muted);margin-bottom:4px;font-family:'IBM Plex Mono',monospace;}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;padding:0.85rem 2rem;background:var(--bg);border-bottom:1px solid var(--border);}
+  .filter-btn{font-size:0.73rem;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.15s;white-space:nowrap;}
+  .filter-btn:hover{border-color:var(--border-strong);color:var(--text);}
+  .filter-btn.active{background:var(--text);color:#fff;border-color:var(--text);}
+  .topic-pill{font-size:0.68rem;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;}
+  .actions-bar{display:flex;gap:8px;padding:0.65rem 2rem;background:var(--bg);}
+  .act-btn{font-size:0.73rem;padding:5px 13px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-muted);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .act-btn:hover{background:var(--border);color:var(--text);}
+  .cards-wrap{padding:1rem 2rem 3rem;max-width:860px;margin:0 auto;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color 0.15s;}
+  .card:hover{border-color:var(--border-strong);}
+  .card-header{padding:14px 16px 10px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;user-select:none;}
+  .card-num{font-size:0.7rem;font-family:'IBM Plex Mono',monospace;color:var(--text-hint);min-width:26px;padding-top:3px;font-weight:500;}
+  .card-body{flex:1;}
+  .card-story{font-size:0.78rem;color:var(--text-muted);font-style:italic;line-height:1.55;margin-bottom:5px;}
+  .card-q{font-size:0.88rem;color:var(--text);line-height:1.55;font-weight:500;}
+  .card-meta{display:flex;align-items:center;gap:8px;padding:0 16px 12px 54px;flex-wrap:wrap;}
+  .toggle-btn{font-size:0.7rem;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text-muted);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .toggle-btn:hover{border-color:var(--border-strong);color:var(--text);background:var(--bg);}
+  .mark-btn{font-size:0.7rem;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text-hint);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .mark-btn:hover{border-color:#fbbf24;color:#b45309;}
+  .mark-btn.marked{background:#fffbeb;border-color:#fcd34d;color:#92400e;}
+  .answer-block{display:none;border-top:1px solid var(--border);padding:14px 16px 14px 54px;background:#fafaf8;}
+  .answer-block.open{display:block;}
+  .answer-label{font-size:0.66rem;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;}
+  pre.code-block{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;background:var(--code-bg);color:var(--code-text);border-radius:8px;padding:12px 16px;overflow-x:auto;line-height:1.65;white-space:pre;}
+
+  /* EDITOR BLOĞU */
+  .editor-block{border-top:1px solid var(--border);padding:14px 16px 14px 54px;background:#f0f4ff;}
+  .editor-label{font-size:0.66rem;font-weight:600;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;}
+  .editor-label span{font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;}
+  textarea.code-editor{
+    width:100%;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.82rem;
+    background:var(--code-bg);
+    color:var(--code-text);
+    border:none;
+    border-radius:8px 8px 0 0;
+    padding:12px 14px;
+    line-height:1.65;
+    resize:vertical;
+    min-height:90px;
+    outline:none;
+    display:block;
+    tab-size:4;
   }
-  .page-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 2rem 2rem 1.5rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  .editor-toolbar{display:flex;gap:8px;background:#2a2a3e;padding:7px 12px;border-radius:0 0 8px 8px;align-items:center;}
+  .run-btn{font-size:0.75rem;padding:5px 16px;border-radius:6px;border:none;background:#22c55e;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+  .run-btn:hover{background:#16a34a;}
+  .run-btn:active{transform:scale(0.97);}
+  .clear-btn{font-size:0.72rem;padding:5px 12px;border-radius:6px;border:1px solid #444;background:transparent;color:#aaa;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .clear-btn:hover{background:#333;color:#fff;}
+  .input-notice{font-size:0.68rem;color:#888;margin-left:auto;font-family:'IBM Plex Mono',monospace;}
+  .output-area{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;background:#12121f;color:#a6e3a1;border-radius:0 0 8px 8px;padding:10px 14px;min-height:36px;line-height:1.65;white-space:pre-wrap;border-top:1px solid #333;display:none;margin-top:2px;border-radius:8px;}
+  .output-area.visible{display:block;}
+  .output-area.error{color:#f38ba8;}
+  .output-area.empty{color:#555;font-style:italic;}
+
+  /* input modal */
+  .input-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;}
+  .input-modal.show{display:flex;}
+  .input-box{background:#fff;border-radius:12px;padding:1.5rem;width:320px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+  .input-box p{font-size:0.9rem;margin-bottom:12px;color:var(--text);}
+  .input-box input{width:100%;font-family:'IBM Plex Mono',monospace;font-size:0.9rem;padding:8px 12px;border:1px solid var(--border);border-radius:6px;outline:none;margin-bottom:12px;}
+  .input-box input:focus{border-color:#2563eb;}
+  .input-box-btns{display:flex;gap:8px;justify-content:flex-end;}
+  .input-ok{font-size:0.82rem;padding:6px 18px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;}
+  .input-ok:hover{background:#1d4ed8;}
+
+  .t-degisken{background:var(--t-degisken-bg);color:var(--t-degisken);}
+  .t-kosul{background:var(--t-kosul-bg);color:var(--t-kosul);}
+  .t-dongu{background:var(--t-dongu-bg);color:var(--t-dongu);}
+  .t-liste{background:var(--t-liste-bg);color:var(--t-liste);}
+  .t-fonksiyon{background:var(--t-fonksiyon-bg);color:var(--t-fonksiyon);}
+  .t-girdi{background:var(--t-girdi-bg);color:var(--t-girdi);}
+  .t-matematik{background:var(--t-matematik-bg);color:var(--t-matematik);}
+  .arrow{margin-left:auto;color:var(--text-hint);font-size:1rem;transition:transform 0.2s;align-self:center;}
+  .card.open .arrow{transform:rotate(180deg);}
+
+  @media(max-width:600px){
+    .page-header,.filters,.actions-bar,.cards-wrap{padding-left:1rem;padding-right:1rem;}
+    .answer-block,.editor-block{padding-left:16px;}
+    .header-top{flex-direction:column;}
   }
-  .header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-  }
-  .header-title h1 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-  .header-title p {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 3px;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  .stats-row {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .stat { text-align: center; }
-  .stat-num { font-size: 1.4rem; font-weight: 600; color: var(--text); font-family: 'IBM Plex Mono', monospace; }
-  .stat-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.04em; }
-  .progress-wrap { flex: 1; min-width: 120px; }
-  .progress-track { height: 5px; background: var(--border); border-radius: 10px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--green); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
-  .progress-lbl { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
-  .filters {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 1rem 2rem;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-  }
-  .filter-btn {
-    font-size: 0.75rem;
-    padding: 5px 13px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    cursor: pointer;
-    color: var(--text-muted);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .filter-btn:hover { border-color: var(--border-strong); color: var(--text); }
-  .filter-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
-  .topic-pill {
-    font-size: 0.7rem;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-  }
-  .actions-bar {
-    display: flex;
-    gap: 8px;
-    padding: 0.75rem 2rem;
-    background: var(--bg);
-  }
-  .act-btn {
-    font-size: 0.75rem;
-    padding: 5px 13px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    cursor: pointer;
-    color: var(--text-muted);
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-  .act-btn:hover { background: var(--border); color: var(--text); }
-  .cards-wrap { padding: 1rem 2rem 3rem; max-width: 860px; margin: 0 auto; }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 10px;
-    overflow: hidden;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .card:hover { border-color: var(--border-strong); }
-  .card-header {
-    padding: 14px 16px 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    user-select: none;
-  }
-  .card-num {
-    font-size: 0.72rem;
-    font-family: 'IBM Plex Mono', monospace;
-    color: var(--text-hint);
-    min-width: 26px;
-    padding-top: 3px;
-    font-weight: 500;
-  }
-  .card-body { flex: 1; }
-  .card-story {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    font-style: italic;
-    line-height: 1.55;
-    margin-bottom: 5px;
-  }
-  .card-q {
-    font-size: 0.9rem;
-    color: var(--text);
-    line-height: 1.55;
-    font-weight: 500;
-  }
-  .card-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    padding: 0 16px 12px 54px;
-    flex-wrap: wrap;
-  }
-  .toggle-btn {
-    font-size: 0.72rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    color: var(--text-muted);
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .toggle-btn:hover { border-color: var(--border-strong); color: var(--text); background: var(--bg); }
-  .mark-btn {
-    font-size: 0.72rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    color: var(--text-hint);
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-  .mark-btn:hover { border-color: #fbbf24; color: #b45309; }
-  .mark-btn.marked { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
-  .answer-block {
-    display: none;
-    border-top: 1px solid var(--border);
-    padding: 14px 16px 14px 54px;
-    background: #fafaf8;
-  }
-  .answer-block.open { display: block; }
-  .answer-label {
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--green);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 8px;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  pre.code-block {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.82rem;
-    background: var(--code-bg);
-    color: var(--code-text);
-    border-radius: 8px;
-    padding: 13px 16px;
-    overflow-x: auto;
-    line-height: 1.65;
-    white-space: pre;
-  }
-  .t-degisken { background: var(--t-degisken-bg); color: var(--t-degisken); }
-  .t-kosul    { background: var(--t-kosul-bg);    color: var(--t-kosul);    }
-  .t-dongu    { background: var(--t-dongu-bg);    color: var(--t-dongu);    }
-  .t-liste    { background: var(--t-liste-bg);    color: var(--t-liste);    }
-  .t-fonksiyon{ background: var(--t-fonksiyon-bg);color: var(--t-fonksiyon);}
-  .t-girdi    { background: var(--t-girdi-bg);    color: var(--t-girdi);    }
-  .t-matematik{ background: var(--t-matematik-bg);color: var(--t-matematik);}
-  .arrow {
-    margin-left: auto;
-    color: var(--text-hint);
-    font-size: 1rem;
-    transition: transform 0.2s;
-    align-self: center;
-  }
-  .card.open .arrow { transform: rotate(180deg); }
-  @media (max-width: 600px) {
-    .page-header, .filters, .actions-bar, .cards-wrap { padding-left: 1rem; padding-right: 1rem; }
-    .header-top { flex-direction: column; }
-    .stats-row { gap: 1rem; }
-  }
-  .empty-msg { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 0.9rem; }
 </style>
 </head>
 <body>
@@ -258,7 +134,7 @@
   <div class="header-top">
     <div class="header-title">
       <h1>Python Programlama Temelleri</h1>
-      <p>2. Dönem · 2. Yazılı Sınavı · 40 Hikayeli Çalışma Sorusu</p>
+      <p>2. Dönem · 2. Yazılı · 40 Hikayeli Çalışma Sorusu</p>
     </div>
     <div class="stats-row">
       <div class="stat"><div class="stat-num" id="sAcilan">0</div><div class="stat-lbl">Açıldı</div></div>
@@ -272,7 +148,7 @@
   </div>
 </div>
 
-<div class="filters" id="filtersRow">
+<div class="filters">
   <button class="filter-btn active" onclick="filterBy('tumu',this)">Tümü (40)</button>
   <button class="filter-btn" onclick="filterBy('degisken',this)"><span class="topic-pill t-degisken">Değişken</span></button>
   <button class="filter-btn" onclick="filterBy('kosul',this)"><span class="topic-pill t-kosul">Koşul</span></button>
@@ -290,6 +166,17 @@
 </div>
 
 <div class="cards-wrap" id="cardsWrap"></div>
+
+<!-- input modal -->
+<div class="input-modal" id="inputModal">
+  <div class="input-box">
+    <p id="inputPromptText">Değer girin:</p>
+    <input type="text" id="inputField" onkeydown="if(event.key==='Enter')resolveInput()">
+    <div class="input-box-btns">
+      <button class="input-ok" onclick="resolveInput()">Tamam</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const sorular = [
@@ -334,103 +221,130 @@ const sorular = [
   {konu:"dongu", hikaye:"Program 1'den 50'ye kadar olan sayıların toplamını hesaplıyor.", soru:"for döngüsüyle 1–50 toplamını hesapla ve yazdır.", cevap:"toplam = 0\nfor i in range(1, 51):\n    toplam += i\nprint(toplam)  # 1275"},
   {konu:"liste", hikaye:"Sınıf listesinden mezun olan 'Burcu' çıkarılıyor.", soru:"sinif = ['Burcu', 'Deniz', 'Emre'] listesinden 'Burcu'yu sil.", cevap:"sinif = ['Burcu', 'Deniz', 'Emre']\nsinif.remove('Burcu')\nprint(sinif)"},
   {konu:"girdi", hikaye:"Kullanıcı doğum yılını giriyor; uygulama yaşını hesaplıyor.", soru:"Doğum yılını al, 2025'ten çıkararak yaşı yazdır.", cevap:"dogum = int(input('Doğum yılınız: '))\nyas = 2025 - dogum\nprint('Yaşınız:', yas)"},
-  {konu:"fonksiyon", hikaye:"Kodunu yazan Merve bir sayının pozitif mi negatif mi olduğunu kontrol eden fonksiyon yazıyor.", soru:"Sayı pozitifse True, negatifse False döndüren fonksiyon yaz.", cevap:"def pozitif_mi(sayi):\n    return sayi > 0\n\nprint(pozitif_mi(5))   # True\nprint(pozitif_mi(-3))  # False"},
+  {konu:"fonksiyon", hikaye:"Merve bir sayının pozitif mi negatif mi olduğunu kontrol eden fonksiyon yazıyor.", soru:"Sayı pozitifse True, negatifse False döndüren fonksiyon yaz.", cevap:"def pozitif_mi(sayi):\n    return sayi > 0\n\nprint(pozitif_mi(5))   # True\nprint(pozitif_mi(-3))  # False"},
 ];
 
-const topicNames = {degisken:'Değişken', kosul:'Koşul', dongu:'Döngü', liste:'Liste', fonksiyon:'Fonksiyon', girdi:'Girdi/Çıktı', matematik:'Matematik'};
+const topicNames = {degisken:'Değişken',kosul:'Koşul',dongu:'Döngü',liste:'Liste',fonksiyon:'Fonksiyon',girdi:'Girdi/Çıktı',matematik:'Matematik'};
 let aciklar = new Set();
 let isaretliler = new Set();
-let aktifFilter = 'tumu';
 
-function updateStats() {
-  const cards = document.querySelectorAll('.card');
-  let gorunen = 0;
-  cards.forEach(c => { if (c.style.display !== 'none') gorunen++; });
-  document.getElementById('sAcilan').textContent = aciklar.size;
-  document.getElementById('sIsaret').textContent = isaretliler.size;
-  document.getElementById('sGoster').textContent = gorunen;
-  document.getElementById('progressLbl').textContent = aciklar.size + ' / 40 görüldü';
-  document.getElementById('progressFill').style.width = (aciklar.size / 40 * 100) + '%';
+function updateStats(){
+  let gorunen=0;
+  document.querySelectorAll('.card').forEach(c=>{if(c.style.display!=='none')gorunen++;});
+  document.getElementById('sAcilan').textContent=aciklar.size;
+  document.getElementById('sIsaret').textContent=isaretliler.size;
+  document.getElementById('sGoster').textContent=gorunen;
+  document.getElementById('progressLbl').textContent=aciklar.size+' / 40 görüldü';
+  document.getElementById('progressFill').style.width=(aciklar.size/40*100)+'%';
 }
 
-function filterBy(konu, btn) {
-  aktifFilter = konu;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+function filterBy(konu,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('.card').forEach((card, i) => {
-    const q = sorular[i];
-    let show = false;
-    if (konu === 'tumu') show = true;
-    else if (konu === 'isaretliler') show = isaretliler.has(i);
-    else show = q.konu === konu;
-    card.style.display = show ? '' : 'none';
+  document.querySelectorAll('.card').forEach((card,i)=>{
+    let show=false;
+    if(konu==='tumu') show=true;
+    else if(konu==='isaretliler') show=isaretliler.has(i);
+    else show=sorular[i].konu===konu;
+    card.style.display=show?'':'none';
   });
   updateStats();
 }
 
-function toggleAnswer(idx) {
-  const card = document.getElementById('card' + idx);
-  const ans = document.getElementById('ans' + idx);
-  const btn = document.getElementById('tbtn' + idx);
-  if (ans.classList.contains('open')) {
-    ans.classList.remove('open');
-    card.classList.remove('open');
-    btn.textContent = '▶ Cevabı gör';
-    aciklar.delete(idx);
+function toggleAnswer(idx){
+  const card=document.getElementById('card'+idx);
+  const ans=document.getElementById('ans'+idx);
+  const btn=document.getElementById('tbtn'+idx);
+  if(ans.classList.contains('open')){
+    ans.classList.remove('open');card.classList.remove('open');
+    btn.textContent='▶ Cevabı gör';aciklar.delete(idx);
   } else {
-    ans.classList.add('open');
-    card.classList.add('open');
-    btn.textContent = '▼ Cevabı gizle';
-    aciklar.add(idx);
+    ans.classList.add('open');card.classList.add('open');
+    btn.textContent='▼ Cevabı gizle';aciklar.add(idx);
   }
   updateStats();
 }
 
-function toggleMark(idx) {
-  const btn = document.getElementById('mbtn' + idx);
-  if (isaretliler.has(idx)) {
-    isaretliler.delete(idx);
-    btn.textContent = '☆ İşaretle';
-    btn.classList.remove('marked');
-  } else {
-    isaretliler.add(idx);
-    btn.textContent = '⭐ İşaretlendi';
-    btn.classList.add('marked');
-  }
+function toggleMark(idx){
+  const btn=document.getElementById('mbtn'+idx);
+  if(isaretliler.has(idx)){isaretliler.delete(idx);btn.textContent='☆ İşaretle';btn.classList.remove('marked');}
+  else{isaretliler.add(idx);btn.textContent='⭐ İşaretlendi';btn.classList.add('marked');}
   updateStats();
 }
 
-function tumunuAc() {
-  document.querySelectorAll('.card').forEach((card, i) => {
-    if (card.style.display === 'none') return;
-    const ans = document.getElementById('ans' + i);
-    const btn = document.getElementById('tbtn' + i);
-    ans.classList.add('open');
+function tumunuAc(){
+  document.querySelectorAll('.card').forEach((card,i)=>{
+    if(card.style.display==='none')return;
+    document.getElementById('ans'+i).classList.add('open');
     card.classList.add('open');
-    btn.textContent = '▼ Cevabı gizle';
+    document.getElementById('tbtn'+i).textContent='▼ Cevabı gizle';
     aciklar.add(i);
   });
   updateStats();
 }
-
-function tumunuKapat() {
-  document.querySelectorAll('.card').forEach((card, i) => {
-    const ans = document.getElementById('ans' + i);
-    const btn = document.getElementById('tbtn' + i);
-    ans.classList.remove('open');
+function tumunuKapat(){
+  document.querySelectorAll('.card').forEach((card,i)=>{
+    document.getElementById('ans'+i).classList.remove('open');
     card.classList.remove('open');
-    btn.textContent = '▶ Cevabı gör';
+    document.getElementById('tbtn'+i).textContent='▶ Cevabı gör';
     aciklar.delete(i);
   });
   updateStats();
 }
 
+// --- SKULPT PYTHON RUNNER ---
+let inputResolve = null;
+let currentOutputEl = null;
+
+function resolveInput(){
+  const val = document.getElementById('inputField').value;
+  document.getElementById('inputModal').classList.remove('show');
+  document.getElementById('inputField').value='';
+  if(inputResolve){ inputResolve(val); inputResolve=null; }
+}
+
+function runPython(idx){
+  const code = document.getElementById('editor'+idx).value;
+  const outEl = document.getElementById('output'+idx);
+  outEl.textContent='';
+  outEl.className='output-area visible';
+
+  Sk.configure({
+    output: function(text){ outEl.textContent += text; },
+    inputfun: function(prompt){
+      return new Promise(function(resolve){
+        inputResolve = resolve;
+        document.getElementById('inputPromptText').textContent = prompt || 'Değer girin:';
+        document.getElementById('inputModal').classList.add('show');
+        setTimeout(()=>document.getElementById('inputField').focus(),100);
+      });
+    },
+    inputfunTakesPrompt: true,
+    __future__: Sk.python3
+  });
+
+  Sk.misceval.asyncToPromise(function(){
+    return Sk.importMainWithBody('<stdin>', false, code, true);
+  }).then(function(){
+    if(!outEl.textContent) { outEl.textContent='(çıktı yok)'; outEl.className='output-area visible empty'; }
+  }).catch(function(err){
+    outEl.textContent = '⚠ Hata: ' + err.toString();
+    outEl.className='output-area visible error';
+  });
+}
+
+function clearEditor(idx){
+  document.getElementById('editor'+idx).value='';
+  const outEl=document.getElementById('output'+idx);
+  outEl.textContent='';outEl.className='output-area';
+}
+
+// --- KART OLUŞTUR ---
 const wrap = document.getElementById('cardsWrap');
-sorular.forEach((q, i) => {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.id = 'card' + i;
-  card.innerHTML = `
+sorular.forEach((q,i)=>{
+  const card=document.createElement('div');
+  card.className='card';card.id='card'+i;
+  card.innerHTML=`
     <div class="card-header" onclick="toggleAnswer(${i})">
       <span class="card-num">${String(i+1).padStart(2,'0')}.</span>
       <div class="card-body">
@@ -442,11 +356,21 @@ sorular.forEach((q, i) => {
     <div class="card-meta">
       <button class="toggle-btn" id="tbtn${i}" onclick="toggleAnswer(${i})">▶ Cevabı gör</button>
       <button class="mark-btn" id="mbtn${i}" onclick="toggleMark(${i})">☆ İşaretle</button>
-      <span class="topic-pill t-${q.konu}" style="font-size:0.7rem;padding:3px 10px;">${topicNames[q.konu]}</span>
+      <span class="topic-pill t-${q.konu}">${topicNames[q.konu]}</span>
     </div>
     <div class="answer-block" id="ans${i}">
       <div class="answer-label">✓ Örnek Cevap</div>
       <pre class="code-block">${q.cevap}</pre>
+    </div>
+    <div class="editor-block">
+      <div class="editor-label">✏ Kodunu yaz ve dene <span>— tarayıcıda çalışır, kurulum gerekmez</span></div>
+      <textarea class="code-editor" id="editor${i}" placeholder="# buraya kodunu yaz..." spellcheck="false" onkeydown="if(event.key==='Tab'){event.preventDefault();var s=this.selectionStart;this.value=this.value.substring(0,s)+'    '+this.value.substring(this.selectionEnd);this.selectionStart=this.selectionEnd=s+4;}"></textarea>
+      <div class="editor-toolbar">
+        <button class="run-btn" onclick="runPython(${i})">▶ Çalıştır</button>
+        <button class="clear-btn" onclick="clearEditor(${i})">Temizle</button>
+        <span class="input-notice">input() desteklenir</span>
+      </div>
+      <div class="output-area" id="output${i}"></div>
     </div>
   `;
   wrap.appendChild(card);
