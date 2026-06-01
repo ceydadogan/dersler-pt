@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Python Programlama Temelleri — Çalışma Soruları</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/skulpt@1.2.0/dist/skulpt.min.js"></script>
-<script src="https://unpkg.com/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/brython@3.12.3/brython.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/brython@3.12.3/brython_stdlib.js"></script>
 <style>
   :root {
     --bg: #f7f6f2;
@@ -292,9 +292,13 @@ function tumunuKapat(){
   updateStats();
 }
 
-// --- RUNNER ---
-var _currentIdx = null;
+// --- BRYTHON RUNNER ---
 var _inputResolve = null;
+var _currentRunIdx = null;
+
+window.addEventListener('load', function() {
+  brython({ debug: 0 });
+});
 
 function resolveInput() {
   var val = document.getElementById('inputField').value;
@@ -303,12 +307,8 @@ function resolveInput() {
   if (_inputResolve) { _inputResolve(val); _inputResolve = null; }
 }
 
-function _getOut() {
-  return document.getElementById('output' + _currentIdx);
-}
-
 function runPython(idx) {
-  _currentIdx = idx;
+  _currentRunIdx = idx;
   var code = document.getElementById('editor' + idx).value.trim();
   var outEl = document.getElementById('output' + idx);
   var btn = document.getElementById('runbtn' + idx);
@@ -319,56 +319,49 @@ function runPython(idx) {
     return;
   }
 
-  outEl.textContent = '';
-  outEl.className = 'output-area visible';
   btn.disabled = true;
   btn.textContent = '⏳ Çalışıyor...';
+  outEl.textContent = '';
+  outEl.className = 'output-area visible';
 
-  Sk.configure({
-    output: function(text) {
-      var el = _getOut();
-      el.textContent = el.textContent + text;
-    },
-    read: function(x) {
-      if (Sk.builtinFiles === undefined || Sk.builtinFiles['files'][x] === undefined)
-        throw "Dosya bulunamadı: '" + x + "'";
-      return Sk.builtinFiles['files'][x];
-    },
-    inputfun: function(prompt) {
-      return new Promise(function(resolve) {
-        _inputResolve = resolve;
-        document.getElementById('inputPromptText').textContent = prompt || 'Değer girin:';
-        document.getElementById('inputModal').classList.add('show');
-        setTimeout(function() {
-          try { document.getElementById('inputField').focus(); } catch(e){}
-        }, 200);
-      });
-    },
-    inputfunTakesPrompt: true,
-    __future__: Sk.python3
-  });
+  // Brython ile çalıştır — sys.stdout'u yakala
+  var wrappedCode = [
+    'import sys',
+    'from io import StringIO',
+    '_out = StringIO()',
+    'sys.stdout = _out',
+    'sys.stderr = _out',
+    'try:',
+    code.split('\n').map(function(l){ return '    ' + l; }).join('\n'),
+    'except Exception as e:',
+    '    print("⚠ Hata:", e)',
+    'finally:',
+    '    from browser import window',
+    '    window._brython_output(_out.getvalue())'
+  ].join('\n');
 
-  Sk.misceval.asyncToPromise(function() {
-    return Sk.importMainWithBody('<stdin>', false, code, true);
-  }).then(function() {
-    var el = _getOut();
-    var b = document.getElementById('runbtn' + idx);
+  window._brython_output = function(text) {
+    var el = document.getElementById('output' + _currentRunIdx);
+    var b = document.getElementById('runbtn' + _currentRunIdx);
     b.disabled = false;
     b.textContent = '▶ Çalıştır';
-    if (!el.textContent.trim()) {
+    if (!text || !text.trim()) {
       el.textContent = '(çıktı yok)';
       el.className = 'output-area visible empty';
+    } else {
+      el.textContent = text;
+      el.className = 'output-area visible';
     }
-  }, function(err) {
-    var el = _getOut();
-    var b = document.getElementById('runbtn' + idx);
-    b.disabled = false;
-    b.textContent = '▶ Çalıştır';
-    var msg = err.toString();
-    var lines = msg.split('\n').filter(function(l) { return l.trim(); });
-    el.textContent = '⚠ ' + (lines[lines.length - 1] || msg);
-    el.className = 'output-area visible error';
-  });
+  };
+
+  try {
+    __BRYTHON__.run_script(wrappedCode, 'script_' + idx, false);
+  } catch(e) {
+    outEl.textContent = '⚠ ' + e.toString();
+    outEl.className = 'output-area visible error';
+    btn.disabled = false;
+    btn.textContent = '▶ Çalıştır';
+  }
 }
 
 function clearEditor(idx) {
