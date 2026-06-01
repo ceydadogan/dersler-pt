@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Programlama Temelleri — Çalışma Soruları</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --border: #e2e0d8;
+    --border-strong: #c8c5bb;
+    --text: #1a1916;
+    --text-muted: #6b6860;
+    --text-hint: #9e9b93;
+    --accent: #2563eb;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --t-degisken-bg: #eff6ff; --t-degisken: #1d4ed8;
+    --t-kosul-bg: #fff7ed; --t-kosul: #c2410c;
+    --t-dongu-bg: #f0fdf4; --t-dongu: #15803d;
+    --t-liste-bg: #faf5ff; --t-liste: #7c3aed;
+    --t-fonksiyon-bg: #fff1f2; --t-fonksiyon: #be123c;
+    --t-girdi-bg: #fdf4ff; --t-girdi: #a21caf;
+    --t-matematik-bg: #ecfdf5; --t-matematik: #065f46;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .header-title h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .header-title p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .stats-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.4rem; font-weight: 600; color: var(--text); font-family: 'IBM Plex Mono', monospace; }
+  .stat-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .progress-wrap { flex: 1; min-width: 120px; }
+  .progress-track { height: 5px; background: var(--border); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+  .progress-lbl { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+  .filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-btn {
+    font-size: 0.75rem;
+    padding: 5px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--border-strong); color: var(--text); }
+  .filter-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+  .topic-pill {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .actions-bar {
+    display: flex;
+    gap: 8px;
+    padding: 0.75rem 2rem;
+    background: var(--bg);
+  }
+  .act-btn {
+    font-size: 0.75rem;
+    padding: 5px 13px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .act-btn:hover { background: var(--border); color: var(--text); }
+  .cards-wrap { padding: 1rem 2rem 3rem; max-width: 860px; margin: 0 auto; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .card:hover { border-color: var(--border-strong); }
+  .card-header {
+    padding: 14px 16px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    user-select: none;
+  }
+  .card-num {
+    font-size: 0.72rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-hint);
+    min-width: 26px;
+    padding-top: 3px;
+    font-weight: 500;
+  }
+  .card-body { flex: 1; }
+  .card-story {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.55;
+    margin-bottom: 5px;
+  }
+  .card-q {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.55;
+    font-weight: 500;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 0 16px 12px 54px;
+    flex-wrap: wrap;
+  }
+  .toggle-btn {
+    font-size: 0.72rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .toggle-btn:hover { border-color: var(--border-strong); color: var(--text); background: var(--bg); }
+  .mark-btn {
+    font-size: 0.72rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-hint);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .mark-btn:hover { border-color: #fbbf24; color: #b45309; }
+  .mark-btn.marked { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+  .answer-block {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 14px 16px 14px 54px;
+    background: #fafaf8;
+  }
+  .answer-block.open { display: block; }
+  .answer-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  pre.code-block {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    padding: 13px 16px;
+    overflow-x: auto;
+    line-height: 1.65;
+    white-space: pre;
+  }
+  .t-degisken { background: var(--t-degisken-bg); color: var(--t-degisken); }
+  .t-kosul    { background: var(--t-kosul-bg);    color: var(--t-kosul);    }
+  .t-dongu    { background: var(--t-dongu-bg);    color: var(--t-dongu);    }
+  .t-liste    { background: var(--t-liste-bg);    color: var(--t-liste);    }
+  .t-fonksiyon{ background: var(--t-fonksiyon-bg);color: var(--t-fonksiyon);}
+  .t-girdi    { background: var(--t-girdi-bg);    color: var(--t-girdi);    }
+  .t-matematik{ background: var(--t-matematik-bg);color: var(--t-matematik);}
+  .arrow {
+    margin-left: auto;
+    color: var(--text-hint);
+    font-size: 1rem;
+    transition: transform 0.2s;
+    align-self: center;
+  }
+  .card.open .arrow { transform: rotate(180deg); }
+  @media (max-width: 600px) {
+    .page-header, .filters, .actions-bar, .cards-wrap { padding-left: 1rem; padding-right: 1rem; }
+    .header-top { flex-direction: column; }
+    .stats-row { gap: 1rem; }
+  }
+  .empty-msg { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-top">
+    <div class="header-title">
+      <h1>Python Programlama Temelleri</h1>
+      <p>2. Dönem · 2. Yazılı Sınavı · 40 Hikayeli Çalışma Sorusu</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="sAcilan">0</div><div class="stat-lbl">Açıldı</div></div>
+      <div class="stat"><div class="stat-num" id="sIsaret">0</div><div class="stat-lbl">İşaretli</div></div>
+      <div class="stat"><div class="stat-num" id="sGoster">40</div><div class="stat-lbl">Görünür</div></div>
+      <div class="progress-wrap">
+        <div class="progress-lbl" id="progressLbl">0 / 40 görüldü</div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="filters" id="filtersRow">
+  <button class="filter-btn active" onclick="filterBy('tumu',this)">Tümü (40)</button>
+  <button class="filter-btn" onclick="filterBy('degisken',this)"><span class="topic-pill t-degisken">Değişken</span></button>
+  <button class="filter-btn" onclick="filterBy('kosul',this)"><span class="topic-pill t-kosul">Koşul</span></button>
+  <button class="filter-btn" onclick="filterBy('dongu',this)"><span class="topic-pill t-dongu">Döngü</span></button>
+  <button class="filter-btn" onclick="filterBy('liste',this)"><span class="topic-pill t-liste">Liste</span></button>
+  <button class="filter-btn" onclick="filterBy('fonksiyon',this)"><span class="topic-pill t-fonksiyon">Fonksiyon</span></button>
+  <button class="filter-btn" onclick="filterBy('girdi',this)"><span class="topic-pill t-girdi">Girdi/Çıktı</span></button>
+  <button class="filter-btn" onclick="filterBy('matematik',this)"><span class="topic-pill t-matematik">Matematik</span></button>
+  <button class="filter-btn" onclick="filterBy('isaretliler',this)">⭐ İşaretlediklerim</button>
+</div>
+
+<div class="actions-bar">
+  <button class="act-btn" onclick="tumunuAc()">▼ Tüm cevapları aç</button>
+  <button class="act-btn" onclick="tumunuKapat()">▲ Tüm cevapları kapat</button>
+</div>
+
+<div class="cards-wrap" id="cardsWrap"></div>
+
+<script>
+const sorular = [
+  {konu:"degisken", hikaye:"Zeynep marketten alışveriş yapıyor. Elinde 50 TL var, elma 3 TL, ekmek 5 TL alıyor.", soru:"Kalan parayı hesaplayan kodu yaz.", cevap:"para = 50\nelma = 3\nekmek = 5\nkalan = para - elma - ekmek\nprint(kalan)  # 42"},
+  {konu:"degisken", hikaye:"Öğrenci Mert'in adı 'Mert', yaşı 16'dır.", soru:"Bu bilgileri ekrana 'Mert, 16 yaşında.' şeklinde yazdır.", cevap:"ad = 'Mert'\nyas = 16\nprint(ad + ', ' + str(yas) + ' yaşında.')"},
+  {konu:"matematik", hikaye:"Sınıfta 30 öğrenci var. Üç eşit gruba bölünüyorlar.", soru:"Her grupta kaç öğrenci olduğunu hesapla ve yazdır.", cevap:"ogrenci = 30\ngrup = 3\nprint(ogrenci // grup)  # 10"},
+  {konu:"matematik", hikaye:"Ali'nin 100 m koşu süresi 13.5 saniyedir.", soru:"Hızını (metre/saniye) hesapla ve yazdır.", cevap:"mesafe = 100\nsure = 13.5\nhiz = mesafe / sure\nprint(hiz)"},
+  {konu:"girdi", hikaye:"Kiosk makinesi kullanıcıdan ismini istiyor.", soru:"Kullanıcıdan isim al ve 'Merhaba, [isim]!' yaz.", cevap:"isim = input('İsminizi girin: ')\nprint('Merhaba, ' + isim + '!')"},
+  {konu:"girdi", hikaye:"Bir otopark sistemi araç plakası ve giriş saatini alıyor.", soru:"Kullanıcıdan plaka ve giriş saatini al, ekrana yaz.", cevap:"plaka = input('Plaka: ')\nsaat = input('Giriş saati: ')\nprint(plaka, saat)"},
+  {konu:"kosul", hikaye:"Kütüphane sistemi: 18 yaşından büyükler yetişkin bölümüne girebilir.", soru:"Yaşa göre 'Yetişkin bölümü' veya 'Genç bölümü' yazdır.", cevap:"yas = int(input('Yaşınız: '))\nif yas >= 18:\n    print('Yetişkin bölümü')\nelse:\n    print('Genç bölümü')"},
+  {konu:"kosul", hikaye:"Hava durumu uygulaması: sıcaklık 30'un üstündeyse 'Sıcak', altındaysa 'Serin' uyarısı veriyor.", soru:"Bu koşulu kodla.", cevap:"sicaklik = float(input('Sıcaklık: '))\nif sicaklik > 30:\n    print('Sıcak')\nelse:\n    print('Serin')"},
+  {konu:"kosul", hikaye:"Oyun karakterinin canı 0'dan büyükse 'Devam et', sıfırsa 'Oyun bitti' mesajı çıkıyor.", soru:"Bu kontrolü kodla.", cevap:"can = int(input('Can: '))\nif can > 0:\n    print('Devam et')\nelse:\n    print('Oyun bitti')"},
+  {konu:"kosul", hikaye:"Not sistemi: 85 ve üstü A, 70–84 arası B, altı C.", soru:"Notu girip harf notu yazdır.", cevap:"not_ = int(input('Not: '))\nif not_ >= 85:\n    print('A')\nelif not_ >= 70:\n    print('B')\nelse:\n    print('C')"},
+  {konu:"kosul", hikaye:"Market sepet sistemi: indirim kodu 'KOD10' girilirse %10 indirim uygulanıyor.", soru:"Kodu kontrol edip fiyatı yazdır.", cevap:"fiyat = float(input('Fiyat: '))\nkod = input('İndirim kodu: ')\nif kod == 'KOD10':\n    print(fiyat * 0.9)\nelse:\n    print(fiyat)"},
+  {konu:"kosul", hikaye:"Bir uygulama çift sayılara 'çift', tek sayılara 'tek' yazıyor.", soru:"Kullanıcıdan sayı al ve çift/tek kontrolü yap.", cevap:"sayi = int(input('Sayı: '))\nif sayi % 2 == 0:\n    print('çift')\nelse:\n    print('tek')"},
+  {konu:"dongu", hikaye:"Öğretmen sınıfa 'İyi sabahlar!' demek için 5 kez konuşuyor.", soru:"'İyi sabahlar!' yazısını 5 kez yazdır.", cevap:"for i in range(5):\n    print('İyi sabahlar!')"},
+  {konu:"dongu", hikaye:"Fabrika bant sistemi: 1'den 10'a kadar ürün numarası basıyor.", soru:"1'den 10'a kadar sayıları alt alta yazdır.", cevap:"for i in range(1, 11):\n    print(i)"},
+  {konu:"dongu", hikaye:"Spor uygulaması: sayacı 0'dan başlatıp 5'e ulaşana kadar sayıyı yazdır.", soru:"while döngüsüyle sayacı 0'dan 5'e çalıştır.", cevap:"sayac = 0\nwhile sayac < 5:\n    sayac += 1\n    print(sayac)"},
+  {konu:"dongu", hikaye:"Otobüs yolcusu durakları sayıyor: 1. durak, 2. durak... 8. durağa kadar.", soru:"'X. durak' formatında 1'den 8'e kadar yazdır.", cevap:"for i in range(1, 9):\n    print(str(i) + '. durak')"},
+  {konu:"dongu", hikaye:"Müzik çalar: şarkı listesindeki her şarkıyı sırayla çalıyor.", soru:"sarkilar = ['Huzur', 'Yağmur', 'Güneş'] listesini döngüyle yazdır.", cevap:"sarkilar = ['Huzur', 'Yağmur', 'Güneş']\nfor sarki in sarkilar:\n    print(sarki)"},
+  {konu:"dongu", hikaye:"Banka sistemi: 100 TL'den başlayıp her yıl 10 TL faiz ekleniyor, 5 yıl boyunca.", soru:"Her yılın bakiyesini yazdır.", cevap:"bakiye = 100\nfor yil in range(1, 6):\n    bakiye += 10\n    print('Yıl', yil, ':', bakiye)"},
+  {konu:"dongu", hikaye:"Koşu uygulaması: kullanıcı 'dur' yazana kadar adım sayısı soruyor.", soru:"'dur' girilene kadar adım sayısı alan döngü yaz.", cevap:"while True:\n    adim = input('Adım sayısı (dur=çıkış): ')\n    if adim == 'dur':\n        break\n    print('Adım kaydedildi:', adim)"},
+  {konu:"dongu", hikaye:"Öğretmen 5 öğrencinin notunu tek tek giriyor ve toplamı hesaplıyor.", soru:"5 not gir, toplamını hesapla ve yazdır.", cevap:"toplam = 0\nfor i in range(5):\n    not_ = int(input('Not: '))\n    toplam += not_\nprint('Toplam:', toplam)"},
+  {konu:"liste", hikaye:"Sınıfın dersler listesi: ['Mat', 'Türkçe', 'Fen']. Listeye 'Python' eklendi.", soru:"Listeye 'Python' ekle ve yeni listeyi yazdır.", cevap:"dersler = ['Mat', 'Türkçe', 'Fen']\ndersler.append('Python')\nprint(dersler)"},
+  {konu:"liste", hikaye:"Alışveriş listesinde 5 ürün var. İlk ürün satın alındı, listeden silindi.", soru:"urunler listesinin ilk elemanını sil ve listeyi yazdır.", cevap:"urunler = ['süt', 'ekmek', 'peynir', 'yumurta', 'su']\nurunler.pop(0)\nprint(urunler)"},
+  {konu:"liste", hikaye:"Bir futbol takımının puanları listede tutuldu. En yüksek puan ödül alıyor.", soru:"puanlar = [45, 78, 33, 91, 60] listesinin en büyüğünü bul.", cevap:"puanlar = [45, 78, 33, 91, 60]\nprint(max(puanlar))  # 91"},
+  {konu:"liste", hikaye:"Haberci uygulama: 3 arkadaşın adı listede. Kaç kişi olduğu gösteriliyor.", soru:"arkadaslar = ['Ayşe', 'Fatma', 'Can'] listesinin uzunluğunu yazdır.", cevap:"arkadaslar = ['Ayşe', 'Fatma', 'Can']\nprint(len(arkadaslar))  # 3"},
+  {konu:"liste", hikaye:"Öğrenci veri tabanı: isimler listesinde 'Ahmet' var mı kontrol ediliyor.", soru:"isimler = ['Ali', 'Ahmet', 'Zeynep'] listesinde 'Ahmet' var mı?", cevap:"isimler = ['Ali', 'Ahmet', 'Zeynep']\nif 'Ahmet' in isimler:\n    print('Var')\nelse:\n    print('Yok')"},
+  {konu:"liste", hikaye:"Sınav sonuçları listesinde öğrencinin notu kaçıncı sırada?", soru:"notlar = [70, 85, 90, 60] listesinde 85'in indexini bul.", cevap:"notlar = [70, 85, 90, 60]\nprint(notlar.index(85))  # 1"},
+  {konu:"fonksiyon", hikaye:"Kafe sipariş sistemi: her kahve için fiyat hesaplama işlemi tekrar ediliyor.", soru:"Kahve adedi ve birim fiyatı alıp toplam döndüren fonksiyon yaz.", cevap:"def toplam_fiyat(adet, birim_fiyat):\n    return adet * birim_fiyat\n\nprint(toplam_fiyat(3, 15))  # 45"},
+  {konu:"fonksiyon", hikaye:"Uygulama her kullanıcıya hoş geldin mesajı gösteriyor.", soru:"İsim alıp 'Hoş geldin, [isim]!' döndüren fonksiyon yaz.", cevap:"def hos_geldin(isim):\n    return 'Hoş geldin, ' + isim + '!'\n\nprint(hos_geldin('Ceyda'))"},
+  {konu:"fonksiyon", hikaye:"Matematik uygulaması kare alma işlemini sık kullanıyor.", soru:"Sayının karesini döndüren kare() fonksiyonu yaz.", cevap:"def kare(sayi):\n    return sayi ** 2\n\nprint(kare(5))  # 25"},
+  {konu:"fonksiyon", hikaye:"Ölçüm cihazı Celsius'u Fahrenheit'a çeviriyor.", soru:"Celsius alıp Fahrenheit döndüren fonksiyon yaz. (F = C × 9/5 + 32)", cevap:"def celsius_fahrenheit(c):\n    return c * 9/5 + 32\n\nprint(celsius_fahrenheit(100))  # 212.0"},
+  {konu:"fonksiyon", hikaye:"Oyun skoru hesaplayıcı: iki oyuncunun puanını karşılaştırıyor.", soru:"İki sayı alıp büyük olanı döndüren fonksiyon yaz.", cevap:"def buyuk_olan(a, b):\n    if a > b:\n        return a\n    else:\n        return b\n\nprint(buyuk_olan(45, 72))  # 72"},
+  {konu:"matematik", hikaye:"Okulun inşaat planında kare bir bahçe var. Kenar uzunluğu 12 metre.", soru:"Bahçenin alanını ve çevresini hesapla.", cevap:"kenar = 12\nalan = kenar ** 2\ncevre = 4 * kenar\nprint('Alan:', alan)\nprint('Çevre:', cevre)"},
+  {konu:"matematik", hikaye:"3 arkadaş restorana gitti. Hesap 270 TL, eşit bölüşüyorlar.", soru:"Kişi başına düşen miktarı hesapla.", cevap:"hesap = 270\nkisi = 3\nprint(hesap // kisi)  # 90"},
+  {konu:"matematik", hikaye:"Mağaza %20 indirim uyguluyor. Ürünün fiyatı 150 TL.", soru:"İndirimli fiyatı hesapla.", cevap:"fiyat = 150\noran = 20\nindirim = fiyat * oran / 100\nyeni_fiyat = fiyat - indirim\nprint(yeni_fiyat)  # 120.0"},
+  {konu:"degisken", hikaye:"İki değişkendeki değerleri yer değiştirmek istiyoruz: a=5, b=10.", soru:"a ve b'nin değerlerini yer değiştir ve yazdır.", cevap:"a = 5\nb = 10\na, b = b, a\nprint(a, b)  # 10 5"},
+  {konu:"degisken", hikaye:"Kullanıcı adı küçük harfle girilmiş ama sistem büyük harf istiyor.", soru:"'ahmet' stringini büyük harfe çevir ve yazdır.", cevap:"kullanici = 'ahmet'\nprint(kullanici.upper())  # AHMET"},
+  {konu:"girdi", hikaye:"Hesap makinesi uygulaması iki sayı alıp dört işlem yapıyor.", soru:"İki sayı al; toplamını, farkını, çarpımını ve bölümünü yazdır.", cevap:"a = float(input('1. sayı: '))\nb = float(input('2. sayı: '))\nprint(a+b, a-b, a*b, a/b)"},
+  {konu:"kosul", hikaye:"Şifre sistemi: doğru şifre girilirse 'Giriş başarılı', yanlışsa 'Hata' yazar.", soru:"Şifreyi '1234' olarak belirle ve kontrol et.", cevap:"sifre = input('Şifre: ')\nif sifre == '1234':\n    print('Giriş başarılı')\nelse:\n    print('Hata')"},
+  {konu:"dongu", hikaye:"Program 1'den 50'ye kadar olan sayıların toplamını hesaplıyor.", soru:"for döngüsüyle 1–50 toplamını hesapla ve yazdır.", cevap:"toplam = 0\nfor i in range(1, 51):\n    toplam += i\nprint(toplam)  # 1275"},
+  {konu:"liste", hikaye:"Sınıf listesinden mezun olan 'Burcu' çıkarılıyor.", soru:"sinif = ['Burcu', 'Deniz', 'Emre'] listesinden 'Burcu'yu sil.", cevap:"sinif = ['Burcu', 'Deniz', 'Emre']\nsinif.remove('Burcu')\nprint(sinif)"},
+  {konu:"girdi", hikaye:"Kullanıcı doğum yılını giriyor; uygulama yaşını hesaplıyor.", soru:"Doğum yılını al, 2025'ten çıkararak yaşı yazdır.", cevap:"dogum = int(input('Doğum yılınız: '))\nyas = 2025 - dogum\nprint('Yaşınız:', yas)"},
+  {konu:"fonksiyon", hikaye:"Kodunu yazan Merve bir sayının pozitif mi negatif mi olduğunu kontrol eden fonksiyon yazıyor.", soru:"Sayı pozitifse True, negatifse False döndüren fonksiyon yaz.", cevap:"def pozitif_mi(sayi):\n    return sayi > 0\n\nprint(pozitif_mi(5))   # True\nprint(pozitif_mi(-3))  # False"},
+];
+
+const topicNames = {degisken:'Değişken', kosul:'Koşul', dongu:'Döngü', liste:'Liste', fonksiyon:'Fonksiyon', girdi:'Girdi/Çıktı', matematik:'Matematik'};
+let aciklar = new Set();
+let isaretliler = new Set();
+let aktifFilter = 'tumu';
+
+function updateStats() {
+  const cards = document.querySelectorAll('.card');
+  let gorunen = 0;
+  cards.forEach(c => { if (c.style.display !== 'none') gorunen++; });
+  document.getElementById('sAcilan').textContent = aciklar.size;
+  document.getElementById('sIsaret').textContent = isaretliler.size;
+  document.getElementById('sGoster').textContent = gorunen;
+  document.getElementById('progressLbl').textContent = aciklar.size + ' / 40 görüldü';
+  document.getElementById('progressFill').style.width = (aciklar.size / 40 * 100) + '%';
+}
+
+function filterBy(konu, btn) {
+  aktifFilter = konu;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach((card, i) => {
+    const q = sorular[i];
+    let show = false;
+    if (konu === 'tumu') show = true;
+    else if (konu === 'isaretliler') show = isaretliler.has(i);
+    else show = q.konu === konu;
+    card.style.display = show ? '' : 'none';
+  });
+  updateStats();
+}
+
+function toggleAnswer(idx) {
+  const card = document.getElementById('card' + idx);
+  const ans = document.getElementById('ans' + idx);
+  const btn = document.getElementById('tbtn' + idx);
+  if (ans.classList.contains('open')) {
+    ans.classList.remove('open');
+    card.classList.remove('open');
+    btn.textContent = '▶ Cevabı gör';
+    aciklar.delete(idx);
+  } else {
+    ans.classList.add('open');
+    card.classList.add('open');
+    btn.textContent = '▼ Cevabı gizle';
+    aciklar.add(idx);
+  }
+  updateStats();
+}
+
+function toggleMark(idx) {
+  const btn = document.getElementById('mbtn' + idx);
+  if (isaretliler.has(idx)) {
+    isaretliler.delete(idx);
+    btn.textContent = '☆ İşaretle';
+    btn.classList.remove('marked');
+  } else {
+    isaretliler.add(idx);
+    btn.textContent = '⭐ İşaretlendi';
+    btn.classList.add('marked');
+  }
+  updateStats();
+}
+
+function tumunuAc() {
+  document.querySelectorAll('.card').forEach((card, i) => {
+    if (card.style.display === 'none') return;
+    const ans = document.getElementById('ans' + i);
+    const btn = document.getElementById('tbtn' + i);
+    ans.classList.add('open');
+    card.classList.add('open');
+    btn.textContent = '▼ Cevabı gizle';
+    aciklar.add(i);
+  });
+  updateStats();
+}
+
+function tumunuKapat() {
+  document.querySelectorAll('.card').forEach((card, i) => {
+    const ans = document.getElementById('ans' + i);
+    const btn = document.getElementById('tbtn' + i);
+    ans.classList.remove('open');
+    card.classList.remove('open');
+    btn.textContent = '▶ Cevabı gör';
+    aciklar.delete(i);
+  });
+  updateStats();
+}
+
+const wrap = document.getElementById('cardsWrap');
+sorular.forEach((q, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'card' + i;
+  card.innerHTML = `
+    <div class="card-header" onclick="toggleAnswer(${i})">
+      <span class="card-num">${String(i+1).padStart(2,'0')}.</span>
+      <div class="card-body">
+        <div class="card-story">${q.hikaye}</div>
+        <div class="card-q">${q.soru}</div>
+      </div>
+      <span class="arrow">▾</span>
+    </div>
+    <div class="card-meta">
+      <button class="toggle-btn" id="tbtn${i}" onclick="toggleAnswer(${i})">▶ Cevabı gör</button>
+      <button class="mark-btn" id="mbtn${i}" onclick="toggleMark(${i})">☆ İşaretle</button>
+      <span class="topic-pill t-${q.konu}" style="font-size:0.7rem;padding:3px 10px;">${topicNames[q.konu]}</span>
+    </div>
+    <div class="answer-block" id="ans${i}">
+      <div class="answer-label">✓ Örnek Cevap</div>
+      <pre class="code-block">${q.cevap}</pre>
+    </div>
+  `;
+  wrap.appendChild(card);
+});
+
+updateStats();
+</script>
+</body>
+</html>
