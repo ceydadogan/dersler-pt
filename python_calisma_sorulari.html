@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Python Programlama Temelleri — Çalışma Soruları</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt-stdlib.js"></script>
+<script src="https://unpkg.com/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://unpkg.com/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 <style>
   :root {
     --bg: #f7f6f2;
@@ -293,50 +293,79 @@ function tumunuKapat(){
 }
 
 // --- SKULPT PYTHON RUNNER ---
+// --- SKULPT RUNNER ---
 let inputResolve = null;
-let currentOutputEl = null;
 
-function resolveInput(){
+function resolveInput() {
   const val = document.getElementById('inputField').value;
   document.getElementById('inputModal').classList.remove('show');
-  document.getElementById('inputField').value='';
-  if(inputResolve){ inputResolve(val); inputResolve=null; }
+  document.getElementById('inputField').value = '';
+  if (inputResolve) { inputResolve(val); inputResolve = null; }
 }
 
-function runPython(idx){
-  const code = document.getElementById('editor'+idx).value;
-  const outEl = document.getElementById('output'+idx);
-  outEl.textContent='';
-  outEl.className='output-area visible';
+function runPython(idx) {
+  const code = document.getElementById('editor' + idx).value.trim();
+  const outEl = document.getElementById('output' + idx);
+  const btn = document.querySelector('#card' + idx + ' .run-btn');
+
+  if (!code) {
+    outEl.textContent = '# kod yaz ve çalıştır';
+    outEl.className = 'output-area visible empty';
+    return;
+  }
+
+  outEl.textContent = '';
+  outEl.className = 'output-area visible';
+  btn.disabled = true;
+  btn.textContent = '⏳ Çalışıyor...';
+
+  function builtinRead(x) {
+    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+      throw "Dosya bulunamadı: '" + x + "'";
+    return Sk.builtinFiles["files"][x];
+  }
 
   Sk.configure({
-    output: function(text){ outEl.textContent += text; },
-    inputfun: function(prompt){
-      return new Promise(function(resolve){
+    output: function(text) { outEl.textContent += text; },
+    read: builtinRead,
+    inputfun: function(prompt) {
+      return new Promise(function(resolve) {
         inputResolve = resolve;
         document.getElementById('inputPromptText').textContent = prompt || 'Değer girin:';
         document.getElementById('inputModal').classList.add('show');
-        setTimeout(()=>document.getElementById('inputField').focus(),100);
+        setTimeout(function() { document.getElementById('inputField').focus(); }, 150);
       });
     },
     inputfunTakesPrompt: true,
     __future__: Sk.python3
   });
 
-  Sk.misceval.asyncToPromise(function(){
+  var promise = Sk.misceval.asyncToPromise(function() {
     return Sk.importMainWithBody('<stdin>', false, code, true);
-  }).then(function(){
-    if(!outEl.textContent) { outEl.textContent='(çıktı yok)'; outEl.className='output-area visible empty'; }
-  }).catch(function(err){
-    outEl.textContent = '⚠ Hata: ' + err.toString();
-    outEl.className='output-area visible error';
+  });
+
+  promise.then(function() {
+    btn.disabled = false;
+    btn.textContent = '▶ Çalıştır';
+    if (!outEl.textContent.trim()) {
+      outEl.textContent = '(çıktı yok)';
+      outEl.className = 'output-area visible empty';
+    }
+  }, function(err) {
+    btn.disabled = false;
+    btn.textContent = '▶ Çalıştır';
+    var msg = err.toString();
+    var lines = msg.split('\n').filter(function(l) { return l.trim(); });
+    outEl.textContent = '⚠ ' + (lines[lines.length - 1] || msg);
+    outEl.className = 'output-area visible error';
   });
 }
 
-function clearEditor(idx){
-  document.getElementById('editor'+idx).value='';
-  const outEl=document.getElementById('output'+idx);
-  outEl.textContent='';outEl.className='output-area';
+function clearEditor(idx) {
+  document.getElementById('editor' + idx).value = '';
+  const outEl = document.getElementById('output' + idx);
+  outEl.textContent = '';
+  outEl.className = 'output-area';
 }
 
 // --- KART OLUŞTUR ---
